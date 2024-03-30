@@ -1,12 +1,16 @@
+// Arduino.h - Header file containing Arduino simulation functionalities
+
 #ifndef ARDUINO_H
 #define ARDUINO_H
 
+// Include necessary libraries
 #include <iostream>
 #include <string>
 #include <chrono>
 #include <thread>
 #include <vector>
 
+// Define Serial class
 class SerialClass {
 public:
     void begin(int baudrate) {
@@ -19,18 +23,13 @@ public:
 };
 
 extern SerialClass Serial;
+//SerialClass Serial;
 
-unsigned long millis() {
-    return std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::system_clock::now().time_since_epoch()).count();
-}
+// Define millis() and delay() functions
+unsigned long millis();
+void delay(unsigned long ms);
 
-void delay(unsigned long ms) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
-}
 
-// Define setup and loop functions as well
-void setup();
-void loop();
+
 
 #endif /* ARDUINO_H */

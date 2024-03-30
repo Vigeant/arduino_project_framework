@@ -1,15 +1,30 @@
-#include "Arduino.h"
+// Arduino.cpp - File containing main function and Arduino simulation implementations
 
-// Main function to simulate Arduino environment
+#include "Arduino.h"
+#include "YourSketch.h"
+
+SerialClass Serial;
+
+// Implement millis() function
+unsigned long millis() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+}
+
+// Implement delay() function
+void delay(unsigned long ms) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(ms));
+}
+
+// Main function
 int main() {
-    setup(); // Initialize
-    unsigned long lastMillis = 0;
+    setup(); // Call setup function
+
     while (true) {
-        // Simulate loop execution
-        if (millis() - lastMillis >= 1000) {
-            loop(); // Execute loop
-            lastMillis = millis(); // Update last execution time
-        }
+        loop(); // Call loop function
+        //delay(1000); // Simulate delay
+        //printf("test");
     }
+
     return 0;
 }
