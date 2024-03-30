@@ -2,6 +2,7 @@
 
 #include "Arduino.h"
 #include "YourSketch.h"
+#include "CommandLine.h"
 
 // Your Arduino code goes here
 void setup() {
@@ -9,6 +10,7 @@ void setup() {
 }
 
 void loop() {
-    Serial.println("Hello, world!");
-    delay(1000);
+    //Serial.println("Hello, world!");
+    doCommandLine();
+    delay(1);
 }

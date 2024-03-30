@@ -3,6 +3,9 @@
 #include "Arduino.h"
 #include "YourSketch.h"
 
+#include <iostream>
+#include <Windows.h>
+
 SerialClass Serial;
 
 // Implement millis() function
@@ -16,8 +19,16 @@ void delay(unsigned long ms) {
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
+void enableRawInputMode() {
+    HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+    DWORD mode;
+    GetConsoleMode(hInput, &mode);
+    SetConsoleMode(hInput, mode & ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT));
+}
+
 // Main function
 int main() {
+    enableRawInputMode();
     setup(); // Call setup function
 
     while (true) {
