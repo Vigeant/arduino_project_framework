@@ -4,17 +4,6 @@
 #include "Arduino.h"
 #include <vector>
 
-// #define MAX_COMMAND_LENGTH 64
-// #define MAX_ARGUMENTS 5
-
-// Command structure
-typedef struct
-{
-    const char *command;
-    void (*function)(int argc, char *argv[]);
-    const char *help;
-} Command;
-
 // Define CliCommand interface
 class CliCommand
 {
@@ -32,9 +21,6 @@ protected:
     std::string name;
     std::string description;
 };
-
-// Forward declaration
-// void doCommandLine();
 
 // declare commands
 //  Define CommandHelp class
