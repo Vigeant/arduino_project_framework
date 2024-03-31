@@ -49,14 +49,21 @@ public:
     }
 };
 
+class EEPROMClass {
+    public:
+    int put(uint32_t address, uint32_t value){
+        return 0;
+    }
+    int get(uint32_t address, uint32_t value){
+        return 0;
+    }
+};
+
 extern SerialClass Serial;
-//SerialClass Serial;
+extern EEPROMClass EEPROM;
 
 // Define millis() and delay() functions
 unsigned long millis();
 void delay(unsigned long ms);
-
-
-
 
 #endif /* ARDUINO_H */

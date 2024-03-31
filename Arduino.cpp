@@ -10,6 +10,7 @@
 #include <io.h>
 
 SerialClass Serial;
+EEPROMClass EEPROM;
 
 // Implement millis() function
 unsigned long millis() {

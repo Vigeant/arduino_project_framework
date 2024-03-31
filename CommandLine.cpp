@@ -6,35 +6,21 @@
 CommandLine::CommandLine()
     : commandHelp(&cliCommands),
       command1(),
-      command2()
+      command2(),
+      showSettings(&settings),
+      settingsResetDefaultValues(&settings),
+      settingsSet(&settings)
 {
 
     cliCommands.clear();
     cliCommands.push_back(&commandHelp);
     cliCommands.push_back(&command1);
     cliCommands.push_back(&command2);
-    // Serial.print("Console instantiated\n");
+    cliCommands.push_back(&showSettings);
+    cliCommands.push_back(&settingsResetDefaultValues);
+    cliCommands.push_back(&settingsSet);
 
     memset(cmdLine, 0, sizeof(cmdLine));
-}
-
-void commandFunction1(int argc, char *argv[])
-{
-    Serial.println("Executing commandFunction1");
-}
-
-void commandFunction2(int argc, char *argv[])
-{
-    Serial.println("Executing commandFunction2");
-}
-
-void commandPrintArgs(int argc, char *argv[])
-{
-    Serial.println("Executing commandPrintArgs");
-    for (int i = 0; i < argc; i++)
-    {
-        Serial.printf("argv[%d] = %s\n", i, argv[i]);
-    }
 }
 
 // helper function
@@ -68,6 +54,7 @@ void CommandLine::doCommandLine()
     static int argc = 0;
     static int buffindex = 0;
     static bool first_prompt = true;
+    std::vector<std::string> complete;
 
     if (first_prompt)
     {
@@ -80,20 +67,31 @@ void CommandLine::doCommandLine()
 
         char c = Serial.read();
 
-        // if (c == '\n' || c == '\r') {
-        if (c == '\r')
+        if (c == '\r' || c == '\t')
         {
-            Serial.putc('\n');
-            cmdLine[buffindex] = '\0';
             char *token = strtok(cmdLine, " ");
-
             args.clear();
-
             while (token != NULL)
             {
                 args.push_back(token);
                 token = strtok(NULL, " ");
             }
+        }
+
+        // if (c == '\n' || c == '\r') {
+        if (c == '\r')
+        {
+            Serial.putc('\n');
+            cmdLine[buffindex] = '\0';
+            /*char *token = strtok(cmdLine, " ");
+
+            //args.clear();
+
+            while (token != NULL)
+            {
+                args.push_back(token);
+                token = strtok(NULL, " ");
+            }*/
 
             // Find and execute the command
             for (const auto &cmd : cliCommands)
@@ -105,7 +103,7 @@ void CommandLine::doCommandLine()
 
                 if (args[0].compare(cmd->getName()) == 0)
                 {
-                    cmd->doCommand(argc, args);
+                    cmd->doCommand(args);
                     break;
                 }
             }
@@ -120,49 +118,110 @@ void CommandLine::doCommandLine()
             // tab autocomplete.
             // if a single match is found, autocompletes the command
             // else print candidates
-            commandCandidates.clear();
-            stringsVector.clear();
-            for (const auto cmd : cliCommands)
-            {
-                if (strncmp(cmdLine, cmd->getName().c_str(), buffindex) == 0)
-                {
-                    commandCandidates.push_back(cmd);
-                    stringsVector.push_back(cmd->getName());
-                }
-            } // single match is found
-            if (commandCandidates.size() == 1)
-            {
-                // auto complete the command and add a trailing space
-                for (; buffindex < commandCandidates[0]->getName().length() && buffindex < MAX_COMMAND_LENGTH - 1; buffindex++)
-                {
-                    cmdLine[buffindex] = commandCandidates[0]->getName()[buffindex];
-                    Serial.putc(cmdLine[buffindex]);
-                }
-                cmdLine[buffindex++] = ' ';
-                Serial.putc(' ');
 
-            } // multiple matches
-            else if (commandCandidates.size() > 1)
+            // if still working on initial command
+            if (args.size() <= 1)
             {
-                std::string longestPrefix = longestCommonPrefix(stringsVector);
 
-                // if buffer == longest common string, list all posible commands
-                if (strcmp(cmdLine, longestPrefix.c_str()) == 0)
+                commandCandidates.clear();
+                stringsVector.clear();
+                for (const auto cmd : cliCommands)
                 {
-                    Serial.putc('\n');
-                    for (const auto cmd : commandCandidates)
+                    if (strncmp(cmdLine, cmd->getName().c_str(), buffindex) == 0)
                     {
-                        Serial.printf("%s\n", cmd->getName().c_str());
+                        commandCandidates.push_back(cmd);
+                        stringsVector.push_back(cmd->getName());
                     }
-                    Serial.printf("%s%s", prompt.c_str(), cmdLine);
-
-                } // append longest common string
-                else
+                } // single match is found
+                if (commandCandidates.size() == 1)
                 {
-                    for (; buffindex < longestPrefix.size() && buffindex < MAX_COMMAND_LENGTH - 1; buffindex++)
+                    // auto complete the command and add a trailing space
+                    for (; buffindex < commandCandidates[0]->getName().length() && buffindex < MAX_COMMAND_LENGTH - 1; buffindex++)
                     {
-                        cmdLine[buffindex] = longestPrefix[buffindex];
+                        cmdLine[buffindex] = commandCandidates[0]->getName()[buffindex];
                         Serial.putc(cmdLine[buffindex]);
+                    }
+                    cmdLine[buffindex++] = ' ';
+                    Serial.putc(' ');
+
+                } // multiple matches
+                else if (commandCandidates.size() > 1)
+                {
+                    std::string longestPrefix = longestCommonPrefix(stringsVector);
+
+                    // if buffer == longest common string, list all posible commands
+                    if (strcmp(cmdLine, longestPrefix.c_str()) == 0)
+                    {
+                        Serial.putc('\n');
+                        for (const auto cmd : commandCandidates)
+                        {
+                            Serial.printf("%s\n", cmd->getName().c_str());
+                        }
+                        Serial.printf("%s%s", prompt.c_str(), cmdLine);
+
+                    } // append longest common string
+                    else
+                    {
+                        for (; buffindex < longestPrefix.size() && buffindex < MAX_COMMAND_LENGTH - 1; buffindex++)
+                        {
+                            cmdLine[buffindex] = longestPrefix[buffindex];
+                            Serial.putc(cmdLine[buffindex]);
+                        }
+                    }
+                }
+            }
+            else if (args.size() > 1)
+            {
+                // working on arguments here
+                //  find command if it exists
+                for (const auto cmd : cliCommands)
+                {
+                    if (args[0].compare(cmd->getName()) == 0)
+                    {
+                        stringsVector.clear();
+                        // command found call its autocomplete function to get candidates.
+                        for (int a = 1; a < args.size(); a++)
+                        {
+                            stringsVector.push_back(args[a]);
+                        }
+                        complete = cmd->doAutoComplete(stringsVector, complete);
+
+                        // if only 1 match autocomplete append to last argument
+                        if (complete.size() == 1)
+                        {
+                            // stringsVector.back().append(complete[0].substr(stringsVector.back().length(), complete[0].length() - stringsVector.back().length()));
+                            //  auto complete the command and add a trailing space
+
+                            for (int maxlen = buffindex + complete[0].length() - stringsVector.back().length(); buffindex < maxlen && buffindex < MAX_COMMAND_LENGTH - 1; buffindex++)
+                            {
+                                cmdLine[buffindex] = complete[0].c_str()[buffindex];
+                                Serial.putc(cmdLine[buffindex]);
+                            }
+                        }
+                        else
+                        {
+                            std::string longestPrefix = longestCommonPrefix(complete);
+
+                            // if buffer == longest common string, list all posible commands
+                            if (strcmp(stringsVector.back().c_str(), longestPrefix.c_str()) == 0)
+                            {
+                                Serial.putc('\n');
+                                for (const auto a : complete)
+                                {
+                                    Serial.printf("%s\n", a.c_str());
+                                }
+                                Serial.printf("%s%s", prompt.c_str(), cmdLine);
+
+                            } // append longest common string
+                            else
+                            {
+                            for (int maxlen = buffindex + longestPrefix.length(); buffindex < maxlen && buffindex < MAX_COMMAND_LENGTH - 1; buffindex++)
+                            {
+                                cmdLine[buffindex] = longestPrefix.c_str()[buffindex];
+                                Serial.putc(cmdLine[buffindex]);
+                            }
+                            }
+                        }
                     }
                 }
             }

@@ -3,8 +3,10 @@
 #include "Arduino.h"
 #include "YourSketch.h"
 #include "CommandLine.h"
+#include "Settings.h"
 
 CommandLine cli;
+Settings settings;
 // Your Arduino code goes here
 void setup() {
     Serial.begin(9600);
