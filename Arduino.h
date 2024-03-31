@@ -19,6 +19,7 @@ public:
 
     void putc(char c) {
         // Output the character to the standard output
+        //putchar(c);
         std::cout << c;
     }
 
