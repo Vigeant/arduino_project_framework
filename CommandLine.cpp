@@ -1,8 +1,7 @@
-// deepcode ignore ImproperNullTermination: complaining about an import name???
-#include "Arduino.h"
 #include <vector>
 #include <string.h>
 #include "CommandLine.h"
+#include "Arduino.h"
 
 CommandLine::CommandLine()
     : commandHelp(&cliCommands),
@@ -68,7 +67,8 @@ void CommandLine::doCommandLine()
         char c = Serial.read();
         memcpy(shadowCmdLine, cmdLine, MAX_COMMAND_LENGTH);
 
-        if (c == '\r' || c == '\t')
+        if (c == '\n' || c == '\r' || c == '\t') {
+        //if (c == '\r' || c == '\t')
         {
             char *token = strtok(shadowCmdLine, " "); // kills the space at the end.
             args.clear();
@@ -114,6 +114,7 @@ void CommandLine::doCommandLine()
             buffindex = 0;
             Serial.printf("%s", prompt.c_str());
         }
+        // tab
         else if (c == '\t')
         {
             // tab autocomplete.
@@ -226,6 +227,7 @@ void CommandLine::doCommandLine()
                 }
             }
         }
+        // backspace
         else if (c == '\x08')
         {
             cmdLine[--buffindex] = '\x00';
@@ -233,6 +235,12 @@ void CommandLine::doCommandLine()
             Serial.putc(' ');
             Serial.putc(c);
         }
+        // ignore other control characters
+        else if (c < 32)
+        {
+            // ignore
+        }
+        // normal character
         else if (buffindex < MAX_COMMAND_LENGTH - 1)
         {
             cmdLine[buffindex++] = c;

@@ -3,9 +3,10 @@
 #include "Arduino.h"
 #include "YourSketch.h"
 
-//#include <iostream>
+#ifdef _WIN32
 #include <Windows.h>
-//#include <stdio.h>
+#endif
+
 #include <fcntl.h>
 #include <io.h>
 
@@ -25,7 +26,7 @@ void delay(unsigned long ms) {
 
 
 
-// Main function
+// Main function simulating arduino behavior with platform dependant code
 int main() {
     int result;
     // Set "stdin" to have binary mode:
@@ -39,19 +40,19 @@ int main() {
     //setvbuf(stdout, NULL, _IONBF, 0);
     setbuf(stdout, NULL);
 
+#ifdef _WIN32
     HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
     DWORD mode;
     GetConsoleMode(hInput, &mode);
     //SetConsoleMode(hInput, mode & ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_PROCESSED_INPUT));
     //SetConsoleMode(hInput, mode & ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT ));
     SetConsoleMode(hInput, mode & ~(ENABLE_LINE_INPUT));
+#endif
 
     setup(); // Call setup function
 
     while (true) {
         loop(); // Call loop function
-        //delay(1000); // Simulate delay
-        //printf("test");
     }
 
     //SetConsoleMode(hInput, mode);
