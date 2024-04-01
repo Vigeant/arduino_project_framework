@@ -5,8 +5,10 @@
 
 #ifdef _WIN32
 #include <Windows.h>
-#endif
 
+#endif
+#include <chrono>
+#include <thread>
 #include <fcntl.h>
 #include <io.h>
 

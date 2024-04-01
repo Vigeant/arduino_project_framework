@@ -5,6 +5,7 @@
 #include <vector>
 #include "Settings.h"
 #include "Errors.h"
+#include <string>
 
 // forward declare helper function
 std::string longestCommonPrefix(const std::vector<std::string> &strs);
