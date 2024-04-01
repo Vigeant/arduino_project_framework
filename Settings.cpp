@@ -82,17 +82,17 @@ void Settings::reloadDefaultSettings() {
 
 template<>
 void SettingImpl<uint32_t>::prettyPrint() {
-  Serial.printf("%35s | %-10u | %-10u | [%10u , %-10u] | %s\n", settingName, value, valueDefault, valueMin, valueMax, description);
+  Serial.printf("%35s | %-10u | %-10u | [%10u , %-10u] | %s\n", settingName.c_str(), value, valueDefault, valueMin, valueMax, description.c_str());
 }
 
 template<>
 void SettingImpl<int32_t>::prettyPrint() {
-  Serial.printf("%35s | %-10d | %-10d | [%10d , %-10d] | %s\n", settingName, value, valueDefault, valueMin, valueMax, description);
+  Serial.printf("%35s | %-10d | %-10d | [%10d , %-10d] | %s\n", settingName.c_str(), value, valueDefault, valueMin, valueMax, description.c_str());
 }
 
 template<>
 void SettingImpl<float>::prettyPrint() {
-  Serial.printf("%35s | %-10.3f | %-10.3f | [%10.3f , %-10.3f] | %s\n", settingName, value, valueDefault, valueMin, valueMax, description);
+  Serial.printf("%35s | %-10.3f | %-10.3f | [%10.3f , %-10.3f] | %s\n", settingName.c_str(), value, valueDefault, valueMin, valueMax, description.c_str());
 }
 
 template<>

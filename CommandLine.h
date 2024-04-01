@@ -186,6 +186,7 @@ public:
 
 private:
     char cmdLine[MAX_COMMAND_LENGTH + 1]; // Read commands into this buffer from Serial.  +1 in length for a termination char
+    char shadowCmdLine[MAX_COMMAND_LENGTH + 1]; //because strtok modifies the string...
     CommandHelp commandHelp;
     Command1 command1;
     Command2 command2;
