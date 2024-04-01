@@ -101,7 +101,8 @@ void CommandLine::doCommandLine()
                 if (args[0].compare(cmd->getName()) == 0)
                 {
                     err = cmd->doCommand(args);
-                    if (err != SUCCESS){
+                    if (err != SUCCESS)
+                    {
                         printErrorln(err);
                     }
                     break;
@@ -224,6 +225,13 @@ void CommandLine::doCommandLine()
                     }
                 }
             }
+        }
+        else if (c == '\x08')
+        {
+            cmdLine[--buffindex] = '\x00';
+            Serial.putc(c);
+            Serial.putc(' ');
+            Serial.putc(c);
         }
         else if (buffindex < MAX_COMMAND_LENGTH - 1)
         {
