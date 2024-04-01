@@ -1,3 +1,4 @@
+// deepcode ignore ImproperNullTermination: complaining about an import name???
 #include "Arduino.h"
 #include <vector>
 #include <string.h>
@@ -54,6 +55,7 @@ void CommandLine::doCommandLine()
     static int buffindex = 0;
     static bool first_prompt = true;
     std::vector<std::string> complete;
+    Error err;
 
     if (first_prompt)
     {
@@ -98,7 +100,10 @@ void CommandLine::doCommandLine()
 
                 if (args[0].compare(cmd->getName()) == 0)
                 {
-                    cmd->doCommand(args);
+                    err = cmd->doCommand(args);
+                    if (err != SUCCESS){
+                        printErrorln(err);
+                    }
                     break;
                 }
             }
@@ -186,8 +191,6 @@ void CommandLine::doCommandLine()
                         {
                             // auto complete the command and add a trailing space
                             std::string singleCommand = complete[0] + " ";
-
-                            int maxlen = buffindex + singleCommand.length() - stringsVector.back().length();
                             for (int i = stringsVector.back().length(); i < singleCommand.length() && buffindex < MAX_COMMAND_LENGTH - 1; buffindex++)
                             {
                                 cmdLine[buffindex] = singleCommand.c_str()[i++];
@@ -211,7 +214,6 @@ void CommandLine::doCommandLine()
                             } // append longest common string
                             else
                             {
-                                int maxlen = buffindex + longestPrefix.length() - stringsVector.back().length();
                                 for (int i = stringsVector.back().length(); i < longestPrefix.length() && buffindex < MAX_COMMAND_LENGTH - 1; buffindex++)
                                 {
                                     cmdLine[buffindex] = longestPrefix.c_str()[i++];
