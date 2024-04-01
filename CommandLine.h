@@ -4,8 +4,9 @@
 #include "Arduino.h"
 #include <vector>
 #include "Settings.h"
+#include "Errors.h"
 
-//forward declare helper function
+// forward declare helper function
 std::string longestCommonPrefix(const std::vector<std::string> &strs);
 
 // Define CliCommand interface
@@ -15,8 +16,12 @@ public:
     CliCommand(const std::string &name, const std::string &description)
         : name(name), description(description) {}
 
-    virtual int doCommand(std::vector<std::string> argv) = 0;
-    virtual std::vector<std::string> doAutoComplete(std::vector<std::string> argv, std::vector<std::string> complete){
+    virtual Error doCommand(std::vector<std::string> argv)
+    {
+        return SUCCESS;
+    }
+    virtual std::vector<std::string> doAutoComplete(std::vector<std::string> argv, std::vector<std::string> complete)
+    {
         return complete;
     }
 
@@ -37,7 +42,7 @@ public:
         : CliCommand("help", "show this help"), cliCommands(cliCommands) {}
 
     // Implement doCommand and doAutoComplete methods
-    int doCommand(std::vector<std::string> argv) override
+    Error doCommand(std::vector<std::string> argv) override
     {
         // Your implementation here
         Serial.printf("Available commands are:\n");
@@ -45,15 +50,15 @@ public:
         {
             Serial.printf("%15s : %s\n", cmd->getName().c_str(), cmd->getDescription().c_str());
         }
-        return 0;
+        return SUCCESS;
     }
-/*
-    std::vector<std::string> doAutoComplete(std::vector<std::string> argv) override
-    {
-        // Your implementation here
-        return argv[0];
-    }
-*/
+    /*
+        std::vector<std::string> doAutoComplete(std::vector<std::string> argv) override
+        {
+            // Your implementation here
+            return argv[0];
+        }
+    */
 private:
     std::vector<CliCommand *> *cliCommands;
 };
@@ -65,17 +70,17 @@ public:
         : CliCommand("command1", "prints its name") {}
 
     // Implement doCommand and doAutoComplete methods
-    int doCommand(std::vector<std::string> argv) override
+    Error doCommand(std::vector<std::string> argv) override
     {
         Serial.printf("command name : %s\n", name.c_str());
-        return 0;
+        return SUCCESS;
     }
-/*
-    std::vector<std::string> doAutoComplete(std::vector<std::string> argv) override
-    {
-        // Your implementation here
-        return argv[0];
-    }*/
+    /*
+        std::vector<std::string> doAutoComplete(std::vector<std::string> argv) override
+        {
+            // Your implementation here
+            return argv[0];
+        }*/
 };
 
 class Command2 : public CliCommand
@@ -85,86 +90,38 @@ public:
         : CliCommand("command2", "prints its name") {}
 
     // Implement doCommand and doAutoComplete methods
-    int doCommand(std::vector<std::string> argv) override
+    Error doCommand(std::vector<std::string> argv) override
     {
         Serial.printf("command name : %s\n", name.c_str());
-        return 0;
-    }
-/*
-    std::vector<std::string> doAutoComplete(std::vector<std::string> argv) override
-    {
-        // Your implementation here
-        return argv[0];
-    }*/
-};
-
-class SettingsShow : public CliCommand
-{
-public:
-    SettingsShow(Settings *sett)
-        : CliCommand("settings-show", "show all configuration settings"), settings(sett) {}
-
-    int doCommand(std::vector<std::string> argv) override
-    {
-        Serial.print("GENERAL SYSTEM CONFIGURATION\n\n");
-        settings->printSettings();
-        return 0;
+        return SUCCESS;
     }
     /*
-    std::vector<std::string> doAutoComplete(std::vector<std::string> argv) override
-    {
-        // Your implementation here
-        return argv[0];
-    }*/
-
-private:
-    Settings *settings;
+        std::vector<std::string> doAutoComplete(std::vector<std::string> argv) override
+        {
+            // Your implementation here
+            return argv[0];
+        }*/
 };
 
-class SettingsResetDefaultValues : public CliCommand
+class SettingsCommand : public CliCommand
 {
 public:
-    SettingsResetDefaultValues(Settings *sett)
-        : CliCommand("settings-reset-default-values", "Reset all default configuration values"), settings(sett) {}
+    SettingsCommand(std::string name, std::string desc, Settings *sett)
+        : CliCommand(name, desc), settings(sett) {}
 
-    int doCommand(std::vector<std::string> argv) override
-    {
-        settings->reloadDefaultSettings();
-        return 0;
-    }
-    /*
-    std::vector<std::string> doAutoComplete(std::vector<std::string> argv) override
-    {
-        // Your implementation here
-        return argv[0];
-    }*/
-
-private:
-    Settings *settings;
-};
-
-class SettingsSet : public CliCommand
-{
-public:
-    SettingsSet(Settings *sett)
-        : CliCommand("settings-set", "set a setting. eg.: settings-set aaaa 123"), settings(sett) {}
-
-    int doCommand(std::vector<std::string> argv) override
-    {
-        //settings->reloadDefaultSettings();
-        return 0;
-    }
-    
-    std::vector<std::string> doAutoComplete(std::vector<std::string> argv, std::vector<std::string> complete) override
+    virtual std::vector<std::string> doAutoComplete(std::vector<std::string> argv, std::vector<std::string> complete) override
     {
         // Your implementation here
         complete.clear();
-        if (argv.size() == 1){
-            //std::vector<Setting*> matchingSettings;
-            //std::vector<std::string> stringsVector;
-            for (Setting *setting : settings->getSettings()){
-                if (strncmp(setting->settingName.c_str(), argv[0].c_str(),argv[0].size()) == 0){
-                    //matchingSettings.push_back(setting);
+        if (argv.size() > 0)
+        {
+            // std::vector<Setting*> matchingSettings;
+            // std::vector<std::string> stringsVector;
+            for (Setting *setting : settings->getSettings())
+            {
+                if (strncmp(setting->settingName.c_str(), argv.back().c_str(), argv.back().size()) == 0)
+                {
+                    // matchingSettings.push_back(setting);
                     complete.push_back(setting->settingName.c_str());
                 }
             }
@@ -172,8 +129,93 @@ public:
         return complete;
     }
 
-private:
+protected:
     Settings *settings;
+};
+
+class SettingsShow : public SettingsCommand
+{
+public:
+    SettingsShow(Settings *sett)
+        : SettingsCommand("settings-show", "show all configuration settings", sett) {}
+
+    Error doCommand(std::vector<std::string> argv) override
+    {
+        Error err;
+        if (argv.size() == 1 || (argv.size() == 2 && argv[1].compare("") == 0))
+        {
+            Serial.print("GENERAL SYSTEM CONFIGURATION\n\n");
+            settings->printSettings();
+            return SUCCESS;
+        }
+        else
+        {
+            err = SETTING_NOT_FOUND;
+            argv.erase(argv.begin());
+            for (std::string arg : argv)
+            {
+                auto param = settings->getSetting(arg.c_str());
+                if (param == 0)
+                {
+                    if (arg.compare("") != 0)
+                    {
+                        printError(SETTING_NOT_FOUND);
+                        Serial.printf(" (%s)\n", arg.c_str());
+                    }
+                }
+                else
+                {
+                    err = SUCCESS;
+                    param->prettyPrint();
+                }
+            }
+            return err;
+        }
+    }
+};
+
+class SettingsResetDefaultValues : public SettingsCommand
+{
+public:
+    SettingsResetDefaultValues(Settings *sett)
+        : SettingsCommand("settings-reset-default-values", "Reset all default configuration values", sett) {}
+
+    Error doCommand(std::vector<std::string> argv) override
+    {
+        settings->reloadDefaultSettings();
+        return SUCCESS;
+    }
+};
+
+class SettingsSet : public SettingsCommand
+{
+public:
+    SettingsSet(Settings *sett)
+        : SettingsCommand("settings-set", "set a setting. eg.: settings-set aaaa 123", sett) {}
+
+    Error doCommand(std::vector<std::string> argv) override
+    {
+        if (argv.size() < 2)
+        {
+            return TOO_FEW_ARGUMENTS;
+        }
+        else if (argv.size() == 3 || (argv.size() == 4 && argv.back().compare("") == 0))
+        {
+            auto param = settings->getSetting(argv[1].c_str());
+            if (param == 0)
+            {
+                return SETTING_NOT_FOUND;
+            }
+            else
+            {
+                return param->setVal(argv[2]);
+            }
+        }
+        else
+        {
+            return TOO_MANY_ARGUMENTS;
+        }
+    }
 };
 
 class CommandLine
@@ -185,8 +227,8 @@ public:
     static const uint32_t MAX_COMMAND_LENGTH = 64; // length of serial buffer for incoming commands
 
 private:
-    char cmdLine[MAX_COMMAND_LENGTH + 1]; // Read commands into this buffer from Serial.  +1 in length for a termination char
-    char shadowCmdLine[MAX_COMMAND_LENGTH + 1]; //because strtok modifies the string...
+    char cmdLine[MAX_COMMAND_LENGTH + 1];       // Read commands into this buffer from Serial.  +1 in length for a termination char
+    char shadowCmdLine[MAX_COMMAND_LENGTH + 1]; // because strtok modifies the string...
     CommandHelp commandHelp;
     Command1 command1;
     Command2 command2;

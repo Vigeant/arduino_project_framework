@@ -3,6 +3,7 @@
 
 #include "Arduino.h"
 #include <vector>
+#include "Errors.h"
 
 #define EEPROM_VERSION 123
 
@@ -16,7 +17,7 @@ public:
   }
   const std::string settingName;
   virtual void prettyPrint() = 0;
-  virtual int32_t setVal(const char* valStr) = 0;
+  virtual Error setVal(std::string valStr) = 0;
   virtual uint16_t getSize() = 0;
   virtual void resetDefault() = 0;
   virtual uint32_t saveToEEPROM(uint32_t address) = 0;
@@ -38,7 +39,7 @@ public:
   }
 
   void prettyPrint();
-  int32_t setVal(const char*);
+  Error setVal(std::string valStr);
 
   C getVal() {
     return value;
@@ -74,7 +75,7 @@ class Settings {
 public:
   void printSettings();
   Settings();
-  Setting* getSetting(const char* name);
+  Setting* getSetting(std::string name);
   std::vector<Setting*> getSettings();
   uint16_t size();
   void reloadDefaultSettings();
