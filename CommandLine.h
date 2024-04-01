@@ -52,13 +52,6 @@ public:
         }
         return SUCCESS;
     }
-    /*
-        std::vector<std::string> doAutoComplete(std::vector<std::string> argv) override
-        {
-            // Your implementation here
-            return argv[0];
-        }
-    */
 private:
     std::vector<CliCommand *> *cliCommands;
 };
@@ -75,12 +68,6 @@ public:
         Serial.printf("command name : %s\n", name.c_str());
         return SUCCESS;
     }
-    /*
-        std::vector<std::string> doAutoComplete(std::vector<std::string> argv) override
-        {
-            // Your implementation here
-            return argv[0];
-        }*/
 };
 
 class Command2 : public CliCommand
@@ -95,12 +82,6 @@ public:
         Serial.printf("command name : %s\n", name.c_str());
         return SUCCESS;
     }
-    /*
-        std::vector<std::string> doAutoComplete(std::vector<std::string> argv) override
-        {
-            // Your implementation here
-            return argv[0];
-        }*/
 };
 
 class SettingsCommand : public CliCommand
@@ -223,8 +204,7 @@ class CommandLine
 public:
     CommandLine();
     void doCommandLine();
-    // static const uint32_t NUMBER_OF_COMMANDS = 6;
-    static const uint32_t MAX_COMMAND_LENGTH = 64; // length of serial buffer for incoming commands
+    static const uint32_t MAX_COMMAND_LENGTH = 128; // length of serial buffer for incoming commands
 
 private:
     char cmdLine[MAX_COMMAND_LENGTH + 1];       // Read commands into this buffer from Serial.  +1 in length for a termination char
