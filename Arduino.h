@@ -4,31 +4,35 @@
 #define ARDUINO_H
 
 // Include necessary libraries
-#include <iostream>
-#include <string>
-#include <chrono>
-#include <thread>
-#include <vector>
+#include <cstdio>
+#include <cstdint>
+
+#ifdef _WIN32
+#include <conio.h>
+#else
+#include <unistd.h>
+#include <sys/select.h>
+#endif
+
 
 // Define Serial class
 class SerialClass {
 public:
     void begin(int baudrate) {
-        std::cout << "Serial communication initialized with baudrate: " << baudrate << std::endl;
+        std::printf("Serial communication initialized with baudrate: %d\n", baudrate);
     }
 
     void putc(char c) {
         // Output the character to the standard output
-        //putchar(c);
-        std::cout << c;
+        std::putchar(c);
     }
 
-    void print(const std::string& message) {
-        std::cout << message;
+    void print(const char* message) {
+        std::printf(message);
     }
 
-    void println(const std::string& message) {
-        std::cout << message << std::endl;
+    void println(const char* message) {
+        std::printf("%s\n", message);
     }
 
     template<typename... Args>
@@ -37,15 +41,24 @@ public:
     }
 
     int available() {
-        // Simulate available characters to read from stdin
-        return std::cin.peek() == EOF ? 0 : 1;
+        #ifdef _WIN32
+            // Windows-specific code
+            return _kbhit();
+        #else
+            // Unix/Linux-specific code
+            fd_set readfds;
+            struct timeval tv;
+            tv.tv_sec = 0;
+            tv.tv_usec = 0;
+            FD_ZERO(&readfds);
+            FD_SET(STDIN_FILENO, &readfds);
+            select(STDIN_FILENO+1, &readfds, NULL, NULL, &tv);
+            return FD_ISSET(STDIN_FILENO, &readfds);
+        #endif
     }
 
     int read() {
-        // Read and remove the first character from stdin
-        char c;
-        std::cin.get(c);
-        return c;
+        return getchar();
     }
 };
 

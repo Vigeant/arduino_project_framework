@@ -1,7 +1,7 @@
 #include <vector>
-#include <string.h>
 #include "CommandLine.h"
 #include "Arduino.h"
+#include <string>
 
 CommandLine::CommandLine()
     : commandHelp(&cliCommands),
@@ -58,7 +58,7 @@ void CommandLine::doCommandLine()
 
     if (first_prompt)
     {
-        Serial.print(prompt);
+        Serial.print(prompt.c_str());
         first_prompt = false;
     }
 
@@ -67,9 +67,10 @@ void CommandLine::doCommandLine()
         char c = Serial.read();
         memcpy(shadowCmdLine, cmdLine, MAX_COMMAND_LENGTH);
 
-        if (c == '\n' || c == '\r' || c == '\t') {
-        //if (c == '\r' || c == '\t')
+        if (c == '\n' || c == '\r' || c == '\t')
         {
+            // if (c == '\r' || c == '\t')
+
             char *token = strtok(shadowCmdLine, " "); // kills the space at the end.
             args.clear();
             while (token != NULL)

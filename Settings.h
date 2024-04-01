@@ -4,6 +4,7 @@
 #include "Arduino.h"
 #include <vector>
 #include "Errors.h"
+#include <string>
 
 #define EEPROM_VERSION 123
 
