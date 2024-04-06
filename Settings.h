@@ -2,30 +2,36 @@
 #define SETTINGS_H
 
 #include "Arduino.h"
-#include <vector>
+#include "StaticVector.h"
+#include "StaticString.h"
 #include "Errors.h"
 #include <string>
 
 #define EEPROM_VERSION 123
 
+#define MAX_SETTINGS 50
+#define MAX_SETTING_ARG_LENGTH 50
+#define MAX_SETTING_NAME_LENGTH 50
+#define MAX_SETTING_DESCRIPTION_LENGTH 100
+
 class Setting {
 public:
-  Setting(const std::string paramName, bool editable, const std::string description)
-    : settingName(paramName),
+  Setting(const StaticString<MAX_SETTING_NAME_LENGTH> settingName, bool editable, const StaticString<MAX_SETTING_DESCRIPTION_LENGTH> description)
+    : settingName(settingName),
       editable(editable),
       description(description) {
     ;
   }
-  const std::string settingName;
+  const StaticString<MAX_SETTING_NAME_LENGTH> settingName;
   virtual void prettyPrint() = 0;
-  virtual Error setVal(std::string valStr) = 0;
+  virtual Error setVal(StaticString<MAX_SETTING_ARG_LENGTH> valStr) = 0;
   virtual uint16_t getSize() = 0;
   virtual void resetDefault() = 0;
   virtual uint32_t saveToEEPROM(uint32_t address) = 0;
   virtual uint32_t loadFromEEPROM(uint32_t address) = 0;
 protected:
   bool editable = true;
-  const std::string description;
+  const StaticString<MAX_SETTING_DESCRIPTION_LENGTH> description;
 };
 
 template<class C> class SettingImpl : public Setting {
@@ -40,7 +46,7 @@ public:
   }
 
   void prettyPrint();
-  Error setVal(std::string valStr);
+  Error setVal(StaticString<MAX_SETTING_ARG_LENGTH> valStr);
 
   C getVal() {
     return value;
@@ -76,8 +82,8 @@ class Settings {
 public:
   void printSettings();
   Settings();
-  Setting* getSetting(std::string name);
-  std::vector<Setting*> getSettings();
+  Setting* getSetting(StaticString<MAX_SETTING_NAME_LENGTH> name);
+  StaticVector<Setting*,MAX_SETTINGS> getSettings();
   uint16_t size();
   void reloadDefaultSettings();
   void saveAllSettingsToEEPROM(uint32_t address);
@@ -114,7 +120,7 @@ public:
   SettingImpl<uint32_t> time_before_first_sleep;
 
 private:
-  std::vector<Setting*> settings;
+  StaticVector<Setting*,MAX_SETTINGS> settings;
 };
 
 extern Settings settings;

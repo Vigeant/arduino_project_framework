@@ -2,6 +2,7 @@
 #include <vector>
 #include "Settings.h"
 #include "Errors.h"
+#include "StaticString.h"
 
 Settings::Settings()
     : magic_bytes("magic_bytes", false, 0, 0xdeadbeef, 0, 0, "Magic byte to identify eeprom was initialized"),
@@ -105,7 +106,7 @@ void SettingImpl<float>::prettyPrint()
 }
 
 template <>
-Error SettingImpl<uint32_t>::setVal(std::string valStr)
+Error SettingImpl<uint32_t>::setVal(StaticString<MAX_SETTING_ARG_LENGTH> valStr)
 {
     char *endptr;
     uint32_t tempValue;
@@ -121,7 +122,7 @@ Error SettingImpl<uint32_t>::setVal(std::string valStr)
         return VALUE_OUT_OF_RANGE;
     }
     // check if digits were found
-    if (endptr == valStr)
+    if (endptr == valStr.c_str())
     {
         return INVALID_ARGUMENT;
     }
@@ -130,7 +131,7 @@ Error SettingImpl<uint32_t>::setVal(std::string valStr)
 }
 
 template <>
-Error SettingImpl<int32_t>::setVal(std::string valStr)
+Error SettingImpl<int32_t>::setVal(StaticString<MAX_SETTING_ARG_LENGTH> valStr)
 {
     char *endptr;
     int32_t tempValue;
@@ -146,7 +147,7 @@ Error SettingImpl<int32_t>::setVal(std::string valStr)
         return VALUE_OUT_OF_RANGE;
     }
     // check if digits were found
-    if (endptr == valStr)
+    if (endptr == valStr.c_str())
     {
         return INVALID_ARGUMENT;
     }
@@ -173,7 +174,7 @@ uint16_t SettingImpl<float>::getSize()
 }
 
 template <>
-Error SettingImpl<float>::setVal(std::string valStr)
+Error SettingImpl<float>::setVal(StaticString<MAX_SETTING_ARG_LENGTH> valStr)
 {
     char *endptr;
     float tempValue;
@@ -189,7 +190,7 @@ Error SettingImpl<float>::setVal(std::string valStr)
         return VALUE_OUT_OF_RANGE;
     }
     // check if digits were found
-    if (endptr == valStr)
+    if (endptr == valStr.c_str())
     {
         return INVALID_ARGUMENT;
     }
@@ -197,7 +198,7 @@ Error SettingImpl<float>::setVal(std::string valStr)
     return SUCCESS;
 }
 
-Setting *Settings::getSetting(std::string name)
+Setting *Settings::getSetting(StaticString<MAX_SETTING_ARG_LENGTH> name)
 {
     for (auto set : settings)
     {
@@ -209,7 +210,7 @@ Setting *Settings::getSetting(std::string name)
     return 0;
 }
 
-std::vector<Setting *> Settings::getSettings()
+StaticVector<Setting *,50> Settings::getSettings()
 {
     return settings;
 }

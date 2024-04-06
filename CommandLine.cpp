@@ -1,7 +1,7 @@
 #include <vector>
 #include "CommandLine.h"
 #include "Arduino.h"
-#include <string>
+#include "StaticString.h"
 
 CommandLine::CommandLine()
     : commandHelp(&cliCommands),
@@ -19,41 +19,45 @@ CommandLine::CommandLine()
     cliCommands.push_back(&settingsResetDefaultValues);
     cliCommands.push_back(&settingsSet);
 
-    memset(cmdLine, 0, sizeof(cmdLine));
+    cmdLine = "";
 }
 
 // helper function
-std::string longestCommonPrefix(const std::vector<std::string> &strs)
+void longestCommonPrefix(const StaticVector<StaticString<MAX_COMMAND_ARG_LENGTH>, MAX_COMMAND_ARGS> strs, StaticString<MAX_COMMAND_ARG_LENGTH> &longestCommonPrefixString)
 {
     if (strs.empty())
-        return ""; // If the vector is empty, there's no common prefix
+        longestCommonPrefixString = "";
+        return; // If the vector is empty, there's no common prefix
 
     // Iterate through the characters of the first string
-    for (int i = 0; i < strs[0].size(); ++i)
+    for (auto i = 0; i < strs[0].length(); ++i)
     {
         // Check if the character at position i is the same across all strings
         for (int j = 1; j < strs.size(); ++j)
         {
             // If we've reached the end of any string or find a differing character, return the common prefix
-            if (i >= strs[j].size() || strs[j][i] != strs[0][i])
+            bool test = strs[j].getData()[i] != strs[0].getData()[i];
+            if (i >= strs[j].length() || test)
             {
-                return strs[0].substr(0, i);
+                longestCommonPrefixString = strs[0].substring(longestCommonPrefixString,0, i);
+                return;
             }
         }
     }
 
     // If we reached this point, the entire first string is the common prefix
-    return strs[0];
+    longestCommonPrefixString = strs[0];
+    return;
 }
 
 // Function to parse and execute commands
 void CommandLine::doCommandLine()
 {
-    static std::vector<std::string> args;
+    static StaticVector<StaticString<MAX_COMMAND_ARG_LENGTH>, MAX_COMMAND_ARGS> args;
     static int argc = 0;
     static int buffindex = 0;
     static bool first_prompt = true;
-    std::vector<std::string> complete;
+    StaticVector<StaticString<MAX_COMMAND_ARG_LENGTH>, MAX_COMMAND_ARGS> complete;
     Error err;
 
     if (first_prompt)
@@ -65,7 +69,7 @@ void CommandLine::doCommandLine()
     if (Serial.available() > 0)
     {
         char c = Serial.read();
-        memcpy(shadowCmdLine, cmdLine, MAX_COMMAND_LENGTH);
+        strncpy(shadowCmdLine, cmdLine.c_str(), MAX_COMMAND_LENGTH);
 
         if (c == '\n' || c == '\r' || c == '\t')
         {
@@ -79,7 +83,7 @@ void CommandLine::doCommandLine()
                 token = strtok(NULL, " ");
             }
             // add an empty arg if last character is a space.
-            if (cmdLine[strlen(cmdLine) - 1] == ' ')
+            if (cmdLine.c_str()[cmdLine.length() - 1] == ' ')
             {
                 args.push_back("");
             }
@@ -111,7 +115,8 @@ void CommandLine::doCommandLine()
             }
 
             // Clear buffer
-            memset(cmdLine, 0, sizeof(cmdLine));
+            cmdLine = "";
+            //memset(cmdLine, 0, sizeof(cmdLine));
             buffindex = 0;
             Serial.printf("%s", prompt.c_str());
         }
@@ -138,21 +143,23 @@ void CommandLine::doCommandLine()
                 if (commandCandidates.size() == 1)
                 {
                     // auto complete the command and add a trailing space
-                    std::string singleCommand = commandCandidates[0]->getName() + " ";
+                    StaticString<MAX_COMMAND_ARG_LENGTH> singleCommand(commandCandidates.front()->getName());
+                    singleCommand = singleCommand + " ";
 
                     for (; buffindex < singleCommand.length() && buffindex < MAX_COMMAND_LENGTH - 1; buffindex++)
                     {
                         cmdLine[buffindex] = singleCommand[buffindex];
-                        Serial.putc(cmdLine[buffindex]);
+                        Serial.putc(cmdLine.c_str()[buffindex]);
                     }
 
                 } // multiple matches
                 else if (commandCandidates.size() > 1)
                 {
-                    std::string longestPrefix = longestCommonPrefix(stringsVector);
+                    StaticString<MAX_COMMAND_ARG_LENGTH> longestPrefix = "";
+                    longestCommonPrefix(stringsVector, longestPrefix);
 
                     // if buffer == longest common string, list all posible commands
-                    if (strcmp(cmdLine, longestPrefix.c_str()) == 0)
+                    if (strcmp(cmdLine.c_str(), longestPrefix.c_str()) == 0)
                     {
                         Serial.putc('\n');
                         for (const auto cmd : commandCandidates)
@@ -193,7 +200,8 @@ void CommandLine::doCommandLine()
                         if (complete.size() == 1)
                         {
                             // auto complete the command and add a trailing space
-                            std::string singleCommand = complete[0] + " ";
+                            StaticString<MAX_COMMAND_ARG_LENGTH> singleCommand = complete[0] + " ";
+                            //std::string singleCommand = complete[0] + " ";
                             for (int i = stringsVector.back().length(); i < singleCommand.length() && buffindex < MAX_COMMAND_LENGTH - 1; buffindex++)
                             {
                                 cmdLine[buffindex] = singleCommand.c_str()[i++];
@@ -202,7 +210,9 @@ void CommandLine::doCommandLine()
                         }
                         else
                         {
-                            std::string longestPrefix = longestCommonPrefix(complete);
+                            StaticString<MAX_COMMAND_ARG_LENGTH> longestPrefix;
+                            longestCommonPrefix(complete, longestPrefix);
+                            //std::string longestPrefix = longestCommonPrefix(complete);
 
                             // if last arg == longest common string, list all posible commands
                             if (strcmp(stringsVector.back().c_str(), longestPrefix.c_str()) == 0)
