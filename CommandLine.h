@@ -192,7 +192,7 @@ public:
 
     Error doCommand(StaticVector<StaticString<MAX_COMMAND_ARG_LENGTH>, MAX_COMMAND_ARGS> argv) override
     {
-        if (argv.size() < 2)
+        if (argv.size() < 3)
         {
             return TOO_FEW_ARGUMENTS;
         }

@@ -16,6 +16,7 @@ void printError(Error err)
         break;
     case TOO_FEW_ARGUMENTS:
         Serial.print("too few arguments");
+        break;
     case VALUE_OUT_OF_RANGE:
         Serial.print("value is out of range");
         break;
