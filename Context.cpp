@@ -1,10 +1,11 @@
 #include "Context.h"
 
-void Context::setState(std::unique_ptr<State> newState) {
+
+void Context::setState(State* newState) {
     if (state) {
         state->onExit(*this);
     }
-    state = std::move(newState);
+    state = newState;
     if (state) {
         state->onEntry(*this);
     }

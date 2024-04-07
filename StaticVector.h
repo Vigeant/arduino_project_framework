@@ -27,7 +27,7 @@ public:
 
     void clear() {
         length = 0;
-        data[0] = 0;
+        //data[0] = 0;
     }
 
     // Returns the element at the given index.

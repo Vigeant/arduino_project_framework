@@ -2,6 +2,8 @@
 #define CONTROLLER_H
 #include "Context.h"
 
+void setupController(Context &context);
+
 class InitialState : public State {
 public:
     void onEntry(Context &context) override;

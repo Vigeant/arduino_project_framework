@@ -8,11 +8,12 @@
 
 CommandLine cli;
 Settings settings;
-Context context(std::make_unique<InitialState>()); // Initial state
+Context context; // Initial state
 
 // Your Arduino code goes here
 void setup() {
     Serial.begin(9600);
+    setupController(context);
 }
 
 void loop() {
