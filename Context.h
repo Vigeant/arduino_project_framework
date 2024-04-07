@@ -1,9 +1,6 @@
-#ifndef CONTEXT_H
-#define CONTEXT_H
 
-#include <memory>
 
-class Context;
+class Context; // Forward declaration of the Context class
 
 class State {
 public:
@@ -20,13 +17,12 @@ public:
 
 class Context {
 private:
-    std::unique_ptr<State> state;
+    State* state;  // raw pointer instead of unique_ptr
 
 public:
-    Context(std::unique_ptr<State> state) : state(std::move(state)) {}
-    void setState(std::unique_ptr<State> newState);
+    Context() : state(nullptr) {}
+    void setState(State* newState);  // accept raw pointer in setState
+    void setInitialState(State* initialState) { state = initialState; }
     void request();
-    State* getState() const { return state.get(); }  // Added getter for the state
+    State* getState() const { return state; }  // getter remains the same
 };
-
-#endif // CONTEXT_H
