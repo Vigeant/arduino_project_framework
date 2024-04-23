@@ -219,7 +219,8 @@ class CommandLine
 {
 public:
     CommandLine();
-    void doCommandLine();
+    void doCommandLine(const char c);
+    void init();
     //static const uint32_t MAX_COMMAND_LENGTH = 128; // length of serial buffer for incoming commands
 
 private:

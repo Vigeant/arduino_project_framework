@@ -22,6 +22,10 @@ CommandLine::CommandLine()
     cmdLine = "";
 }
 
+void CommandLine::init(){
+    Serial.print(prompt.c_str());
+}
+
 // helper function
 void longestCommonPrefix(const StaticVector<StaticString<MAX_COMMAND_ARG_LENGTH>, MAX_COMMAND_ARGS> strs, StaticString<MAX_COMMAND_ARG_LENGTH> &longestCommonPrefixString)
 {
@@ -53,7 +57,7 @@ void longestCommonPrefix(const StaticVector<StaticString<MAX_COMMAND_ARG_LENGTH>
 }
 
 // Function to parse and execute commands
-void CommandLine::doCommandLine()
+void CommandLine::doCommandLine(const char c)
 {
     static StaticVector<StaticString<MAX_COMMAND_ARG_LENGTH>, MAX_COMMAND_ARGS> args;
     static int argc = 0;
@@ -68,9 +72,9 @@ void CommandLine::doCommandLine()
         first_prompt = false;
     }
 
-    if (Serial.available() > 0)
-    {
-        char c = Serial.read();
+    //if (Serial.available() > 0)
+    //{
+    //    char c = Serial.read();
         strncpy(shadowCmdLine, cmdLine.c_str(), MAX_COMMAND_LENGTH);
 
         if (c == '\n' || c == '\r' || c == '\t')
@@ -272,5 +276,5 @@ void CommandLine::doCommandLine()
             // cmdLine[buffindex++] = c;
             Serial.putc(c);
         }
-    }
+    //}
 }

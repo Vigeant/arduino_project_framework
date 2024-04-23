@@ -11,14 +11,21 @@ Settings settings;
 Context context; // Initial state
 
 // Your Arduino code goes here
-void setup() {
+void setup()
+{
     Serial.begin(9600);
     setupController(context);
+    cli.init();
 }
 
-void loop() {
-    //Serial.println("Hello, world!");
-    cli.doCommandLine();
+void loop()
+{
+    // Serial.println("Hello, world!");
+    if (Serial.available() > 0)
+    {
+        char c = Serial.read();
+        cli.doCommandLine(c);
+    }
     context.request();
     delay(25);
 }
