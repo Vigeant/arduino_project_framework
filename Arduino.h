@@ -12,6 +12,7 @@
 #else
 #include <unistd.h>
 #include <sys/select.h>
+#include <ncurses.h>
 #endif
 
 
@@ -28,7 +29,7 @@ public:
     }
 
     void print(const char* message) {
-        std::printf(message);
+        std::printf("%s", message);
     }
 
     void println(const char* message) {
@@ -58,7 +59,12 @@ public:
     }
 
     int read() {
-        return getchar();
+        #ifdef _WIN32
+            // Windows-specific code
+            return getchar();
+        #else
+            return getch();
+        #endif
     }
 };
 

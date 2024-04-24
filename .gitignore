@@ -34,3 +34,10 @@
 # vscode garbage files
 *.pdb
 *.ilk
+
+# everything in the bin folder
+bin/*
+
+#aflHarnesses
+aflHarnesses/*
+
