@@ -119,6 +119,77 @@ public:
   SettingImpl<uint32_t> oled_cycle_time;
   SettingImpl<uint32_t> time_before_first_sleep;
 
+  //spirulina control settings
+  SettingImpl<uint32_t> grow_2_rest_time_setpoint;
+  SettingImpl<uint32_t> rest_2_grow_time_setpoint;
+  SettingImpl<uint32_t> grow_temp_setpoint;
+  SettingImpl<uint32_t> rest_temp_setpoint;
+  SettingImpl<uint32_t> temp_hysteresis;
+  SettingImpl<uint32_t> grow_light_intensity_setpoint;
+  SettingImpl<uint32_t> rest_light_intensity_setpoint;
+  SettingImpl<uint32_t> light_hysteresis;
+  SettingImpl<uint32_t> silence_mode;
+  SettingImpl<uint32_t> manual_mode;
+  SettingImpl<uint32_t> tube0_auto_harvest;
+  SettingImpl<uint32_t> tube1_auto_harvest;
+  SettingImpl<uint32_t> tube2_auto_harvest;
+
+  //spirulina output settings
+  SettingImpl<uint32_t> led_dimmer_pwm;
+  SettingImpl<uint32_t> heater;
+  SettingImpl<uint32_t> return_pump;
+  SettingImpl<uint32_t> air_pump;
+  SettingImpl<uint32_t> tube0_harvest_valve;
+  SettingImpl<uint32_t> tube1_harvest_valve;
+  SettingImpl<uint32_t> tube2_harvest_valve;
+  SettingImpl<uint32_t> tube0_return_valve;
+  SettingImpl<uint32_t> tube1_return_valve;
+  SettingImpl<uint32_t> tube2_return_valve;
+  SettingImpl<uint32_t> tube0_harvest_ready;
+  SettingImpl<uint32_t> tube1_harvest_ready;
+  SettingImpl<uint32_t> tube2_harvest_ready;
+
+  //spirulina calibration settings
+  SettingImpl<uint32_t> tube0_ph_calibration_factor_m;
+  SettingImpl<uint32_t> tube0_ph_calibration_factor_b;
+  SettingImpl<uint32_t> tube1_ph_calibration_factor_m;
+  SettingImpl<uint32_t> tube1_ph_calibration_factor_b;
+  SettingImpl<uint32_t> tube2_ph_calibration_factor_m;
+  SettingImpl<uint32_t> tube2_ph_calibration_factor_b;
+  SettingImpl<uint32_t> tube0_temp_calibration_factor_m;
+  SettingImpl<uint32_t> tube0_temp_calibration_factor_b;
+  SettingImpl<uint32_t> tube1_temp_calibration_factor_m;
+  SettingImpl<uint32_t> tube1_temp_calibration_factor_b;
+  SettingImpl<uint32_t> tube2_temp_calibration_factor_m;
+  SettingImpl<uint32_t> tube2_temp_calibration_factor_b;
+  SettingImpl<uint32_t> tube0_turbitity_calibration_factor_m;
+  SettingImpl<uint32_t> tube0_turbitity_calibration_factor_b;
+  SettingImpl<uint32_t> tube1_turbitity_calibration_factor_m;
+  SettingImpl<uint32_t> tube1_turbitity_calibration_factor_b;
+  SettingImpl<uint32_t> tube2_turbitity_calibration_factor_m;
+  SettingImpl<uint32_t> tube2_turbitity_calibration_factor_b;
+  SettingImpl<uint32_t> tube0_recovery_bin_load_calibration_factor_m;
+  SettingImpl<uint32_t> tube0_recovery_bin_load_calibration_factor_b;
+
+  //spirulina sensor readings
+  SettingImpl<float> tube0_ph;
+  SettingImpl<float> tube1_ph;
+  SettingImpl<float> tube2_ph;
+  SettingImpl<float> tube0_temp;
+  SettingImpl<float> tube1_temp;
+  SettingImpl<float> tube2_temp;
+  SettingImpl<uint32_t> tube0_level_full;
+  SettingImpl<uint32_t> tube1_level_full;
+  SettingImpl<uint32_t> tube2_level_full;
+  SettingImpl<uint32_t> light_intensity;
+  SettingImpl<uint32_t> tube0_turbitity;
+  SettingImpl<uint32_t> tube1_turbitity;
+  SettingImpl<uint32_t> tube2_turbitity;
+  SettingImpl<uint32_t> recovery_bin_load;
+  SettingImpl<uint32_t> recovery_drawer_interlock;
+
+
+
 private:
   StaticVector<Setting*,MAX_SETTINGS> settings;
 };
